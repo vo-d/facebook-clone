@@ -7,7 +7,9 @@ module.exports = {
   nextConfig,
   images:{
     domains:[
-      "upload.wikimedia.org"
+      "upload.wikimedia.org",
+      "firebasestorage.googleapis.com",
+      "platform-lookaside.fbsbx.com"
     ]
   }
 }
