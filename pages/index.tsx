@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Header from '../components/Header'
+import { GetServerSideProps } from 'next/types'
 
 
 export default function Home() {
@@ -15,7 +16,11 @@ export default function Home() {
 
       {/* Header */}
       <Header/>
+      <main>
+
+      </main>
 
     </div>
   )
 }
+
