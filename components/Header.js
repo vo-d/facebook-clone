@@ -34,7 +34,7 @@ function Header() {
             {/* Profile image*/ }
             <Image onClick={signOut} className='rounded-full cursor-pointer' src={session.user.image} width={40} height={40}></Image>
 
-            <p className=' whitespace-nowrap font-semibold pr-3'>Dai Vo</p>
+            <p className=' whitespace-nowrap font-semibold pr-3'>{session.user.name}</p>
             <ViewColumnsIcon className='icon'></ViewColumnsIcon>
             <ChatBubbleOvalLeftIcon className='icon'></ChatBubbleOvalLeftIcon>
             <BellIcon className='icon'></BellIcon>
