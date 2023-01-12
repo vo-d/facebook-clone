@@ -3,9 +3,11 @@ import Image from 'next/image'
 import { BellIcon, ChevronDownIcon, HomeIcon, UserGroupIcon, ViewColumnsIcon, ChatBubbleOvalLeftIcon } from '@heroicons/react/24/solid'
 import { FlagIcon, PlayIcon, MagnifyingGlassIcon, ShoppingCartIcon } from '@heroicons/react/24/outline'
 import HeaderIcon from './HeaderIcon'
+import {signOut, useSession} from 'next-auth/react'
 
 
 function Header() {
+    const {data:session} = useSession()
   return (
     <div className=' sticky top-0 z-50 bg-white flex items-center'>
         <div  className=' flex items-center'>
@@ -28,7 +30,10 @@ function Header() {
             </div>
         </div>
         {/* right */} 
-        <div className='flex items-center sm:space-x-2 justify-start'>
+        <div className='flex items-center sm:space-x-2 justify-end'>
+            {/* Profile image*/ }
+            <Image onClick={signOut} className='rounded-full cursor-pointer' src={session.user.image} width={40} height={40}></Image>
+
             <p className=' whitespace-nowrap font-semibold pr-3'>Dai Vo</p>
             <ViewColumnsIcon className='icon'></ViewColumnsIcon>
             <ChatBubbleOvalLeftIcon className='icon'></ChatBubbleOvalLeftIcon>
