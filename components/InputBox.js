@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import {CameraIcon, VideoCameraIcon } from '@heroicons/react/24/solid'
@@ -23,7 +23,15 @@ function InputBox() {
         })
 
         inputRef.current.value = "";   
+
     }
+    
+    const filePickerRef = useRef(null)
+    const [imageToPost, setimageToPost] = useState(null);
+    const addImageToPost = (e)=>{
+
+    }
+
     return (
         <div className='bg-white p-2 rounded-2xl shadow-md text-gray-500 font-medium mt-6'>
             <div className='flex space-x-4 p-4 items-center'>
@@ -38,9 +46,10 @@ function InputBox() {
                     <VideoCameraIcon className='h-7 text-red-500 '></VideoCameraIcon>
                     <p className='text-xs sm:text-sm xl:text-base'>Live Video</p>
                 </div>
-                <div className='inputIcon'>
+                <div onClick={()=>filePickerRef.current.click()} className='inputIcon'>
                     <CameraIcon className='h-7 text-green-400 '></CameraIcon>
                     <p className='text-xs sm:text-sm xl:text-base'>Feeling/Activity</p>
+                    <input type={"file"} onChange={addImageToPost} ref={filePickerRef} hidden></input>
                 </div>
                 <div className='inputIcon'>
                     <FaceSmileIcon className='h-7 text-yellow-300 '></FaceSmileIcon>
