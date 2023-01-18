@@ -4,7 +4,8 @@ import { useSession } from 'next-auth/react';
 import {CameraIcon, VideoCameraIcon } from '@heroicons/react/24/solid'
 import {FaceSmileIcon } from '@heroicons/react/24/outline'
 import {collection, addDoc, serverTimestamp} from 'firebase/firestore'
-import {db} from "../firebase"
+import {uploadString, ref, getDownloadURL} from 'firebase/storage'
+import {db, storage} from "../firebase"
 
 function InputBox() {
     const {data:session} = useSession();
@@ -20,7 +21,41 @@ function InputBox() {
             email: session.user.email,
             image: session.user.image,
             timestamp:  serverTimestamp()
-        })
+        }).then(doc=>{
+            if(imageToPost){
+                //create a reference between storage and the file (create slot for file with given name in storage)
+                const storageRef = ref(storage, `posts/${doc.id}`);
+
+                const uploadTask  = uploadString(storageRef, imageToPost, 'data_url');
+
+                removeImage();
+
+                // Listen for state changes, errors, and completion of the upload.
+                uploadTask.on('state_changed',
+                (snapshot) => {
+                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                    case 'paused':
+                        console.log('Upload is paused');
+                        break;
+                    case 'running':
+                        console.log('Upload is running');
+                        break;
+                    }
+                }, 
+                (error) => {console.error(error)}, 
+                () => {
+                    // Upload completed successfully, now we can get the download URL
+                    getDownloadURL(ref(storage,`posts/${doc.id}`)).then(url =>{
+                        db.collection('posts').doc(doc.id).set({
+                            postImage: url
+                        },{merge: true})
+                    })
+                })
+        }})
+    
 
         inputRef.current.value = "";   
 
@@ -29,7 +64,18 @@ function InputBox() {
     const filePickerRef = useRef(null)
     const [imageToPost, setimageToPost] = useState(null);
     const addImageToPost = (e)=>{
+        const reader = new FileReader();
+        if (e.target.files[0]){
+            reader.readAsDataURL(e.target.files[0])
+        }
 
+        reader.onload = (readerEvent) =>{
+            setimageToPost(readerEvent.target.result)
+        }
+    }
+
+    const removeImage = ()=>{
+        setimageToPost(null)
     }
 
     return (
@@ -40,6 +86,11 @@ function InputBox() {
                     <input className='rounded-full h-12 bg-gray-100 flex-grow px-5 focus:outline-none' type={'text'} placeholder={`What's on your mind, ${session.user.name}?`} ref={inputRef}></input>
                     <button hidden type={"submit"} onClick={sendPost}></button>
                 </form>
+                {imageToPost && (
+                    <div onClick={removeImage} className='flex flex-col filter hover:brightness-110 transition duration-150 transform hover:scale-105 cursor:pointer'>
+                        <img className='h-10 object-contain' src={imageToPost} alt = ""></img>
+                    </div>
+                )}
             </div>
             <div className='flex justify-evenly p-3 border-t'>
                 <div className='inputIcon'>
