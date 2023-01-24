@@ -19,7 +19,6 @@ function InputBox() {
 
         if (!inputRef.current.value) return
 
-
          // create a collection with given name in the declared firestore
         const collectionRef = collection(db, 'posts')
 
@@ -52,7 +51,6 @@ function InputBox() {
                     })
                 }) 
         }})
-    
 
         inputRef.current.value = "";   
 
