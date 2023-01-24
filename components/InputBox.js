@@ -8,14 +8,22 @@ import {uploadString, ref, getDownloadURL} from 'firebase/storage'
 import {db, storage} from "../firebase"
 
 function InputBox() {
+
     const {data:session} = useSession();
     const inputRef = useRef(null)
+    const filePickerRef = useRef(null)
+    const [imageToPost, setimageToPost] = useState(null);
+
     const sendPost = async(e)=>{
         e.preventDefault()
 
         if (!inputRef.current.value) return
 
-        await addDoc(collection(db, "posts"),{
+
+         // create a collection with given name in the declared firestore
+        const collectionRef = collection(db, 'posts')
+
+        await addDoc(collectionRef,{
             message: inputRef.current.value,
             name: session.user.name,
             email: session.user.email,
@@ -26,25 +34,14 @@ function InputBox() {
                 //create a reference between storage and the file (create slot for file with given name in storage)
                 const storageRef = ref(storage, `posts/${doc.id}`);
 
+                // upload image to the slot created
                 const uploadTask  = uploadString(storageRef, imageToPost, 'data_url');
 
                 removeImage();
 
                 // Listen for state changes, errors, and completion of the upload.
                 uploadTask.on('state_changed',
-                (snapshot) => {
-                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Upload is ' + progress + '% done');
-                    switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                    }
-                }, 
+                null,
                 (error) => {console.error(error)}, 
                 () => {
                     // Upload completed successfully, now we can get the download URL
@@ -53,22 +50,20 @@ function InputBox() {
                             postImage: url
                         },{merge: true})
                     })
-                })
+                }) 
         }})
     
 
         inputRef.current.value = "";   
 
-    }
+    }  
+
     
-    const filePickerRef = useRef(null)
-    const [imageToPost, setimageToPost] = useState(null);
     const addImageToPost = (e)=>{
         const reader = new FileReader();
         if (e.target.files[0]){
             reader.readAsDataURL(e.target.files[0])
         }
-
         reader.onload = (readerEvent) =>{
             setimageToPost(readerEvent.target.result)
         }
